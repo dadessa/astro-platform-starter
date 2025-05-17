@@ -1,24 +1,3 @@
----
-import Layout from '../layouts/Layout.astro';
-import ContextAlert from '../components/ContextAlert.astro';
-import Markdown from '../components/Markdown.astro';
-import { cacheHeaders, randomInt } from '../utils';
-
-export const prerender = false;
-
-const tags = ['/revalidation', 'cats-related', 'all-pets-related'];
-const headers = cacheHeaders(365, tags);
-
-Object.entries(headers).map(([k, v]) => {
-    Astro.response.headers.set(k, v);
-});
-
-const explainer = `
-This is a server-rendered page, last created at \`${new Date().toUTCString()}\` with a few extra response headers:
-
-~~~js
-${JSON.stringify(headers, null, 2)}
-~~~
 
 # Política de Privacidade
 
@@ -26,35 +5,3 @@ Este aplicativo foi criado apenas para fins de teste de automações utilizando 
 Não coletamos, armazenamos ou compartilhamos informações pessoais dos usuários.
 Os dados utilizados (como endereços de e-mail) são inseridos manualmente para fins de teste e não são mantidos após o uso.
 Para mais informações, entre em contato: dadessa@gmail.com
-`;
-
-const exampleTag = tags[randomInt(0, tags.length - 1)];
----
-
-<Layout title="Revalidation">
-    <h1 class="mb-10">Revalidating Server Content</h1>
-    <Markdown content={explainer} class="mb-10" />
-    <div class="flex flex-wrap gap-4">
-        <button class="revalidate-button btn" data-tag={exampleTag}>Invalidate tag: {exampleTag}</button>
-        <button class="btn" onclick="location.reload()">Reload page</button>
-    </div>
-</Layout>
-
-<script>
-    function revalidate(tag: string) {
-        fetch('/api/revalidate', {
-            method: 'POST',
-            body: JSON.stringify({ tags: [tag] }),
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        });
-        alert(`Invalidated tag: ${tag}`);
-    }
-
-    const revalidateButton = document.querySelectorAll('button.revalidate-button')[0];
-    revalidateButton.addEventListener('click', (e) => {
-        const tag = (e.target as HTMLButtonElement).getAttribute('data-tag');
-        revalidate(tag);
-    });
-</script>
